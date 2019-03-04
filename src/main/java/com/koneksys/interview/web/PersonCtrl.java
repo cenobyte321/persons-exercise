@@ -1,6 +1,7 @@
 package com.koneksys.interview.web;
 
 import com.koneksys.interview.entity.Person;
+import com.koneksys.interview.entity.Telephone;
 import com.koneksys.interview.service.PersonService;
 
 import javax.annotation.PostConstruct;
@@ -20,6 +21,7 @@ public class PersonCtrl implements Serializable {
 
     private List<Person> personList = new ArrayList<>();
     private Person person = new Person();
+    private Telephone telephone = new Telephone();
     private boolean editing = false;
 
     @PostConstruct
@@ -48,11 +50,24 @@ public class PersonCtrl implements Serializable {
         refreshPersonList();
     }
 
+
+    public void addTelephone(){
+        getPerson().getTelephones().add(telephone);
+        telephone.setPerson(getPerson());
+        setTelephone(new Telephone());
+    }
+
+    public void removeTelephone(Telephone telephone){
+        getPerson().getTelephones().remove(telephone);
+        setTelephone(new Telephone());
+    }
+
+
     private void refreshPersonList(){
         setPersonList(personService.getPersons());
         setPerson(new Person());
+        setTelephone(new Telephone());
     }
-
 
     public List<Person> getPersonList() {
         return personList;
@@ -76,5 +91,13 @@ public class PersonCtrl implements Serializable {
 
     public void setEditing(boolean editing) {
         this.editing = editing;
+    }
+
+    public Telephone getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(Telephone telephone) {
+        this.telephone = telephone;
     }
 }

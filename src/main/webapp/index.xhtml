@@ -20,18 +20,38 @@
                     <p:autoUpdate />
                 </p:messages>
                 <h:panelGrid columns="2">
-                    <p:outputLabel for="name" value="Name: " />
-                    <p:inputText id="name" value="#{personCtrl.person.name}" required="true" />
+                    <h:panelGrid id="personData" columns="2" style="width: 300px;">
+                        <p:outputLabel for="name" value="Name: " />
+                        <p:inputText id="name" value="#{personCtrl.person.name}" required="true" />
 
-                    <p:outputLabel for="country" value="Country: " />
-                    <p:inputText id="country" value="#{personCtrl.person.country}" required="true" />
+                        <p:outputLabel for="country" value="Country: " />
+                        <p:inputText id="country" value="#{personCtrl.person.country}" required="true" />
 
-                    <p:outputLabel for="age" value="Age: "   />
-                    <p:inputNumber id="age" value="#{personCtrl.person.age}" required="true" decimalPlaces="0" />
+                        <p:outputLabel for="age" value="Age: "   />
+                        <p:inputNumber id="age" value="#{personCtrl.person.age}" required="true" decimalPlaces="0" />
+
+                    </h:panelGrid>
+                    <h:panelGroup id="telephoneForm" style="display: block; width: 50%" styleClass="dataTable">
+                        <p:dataTable editable="true" var="telephone" value="#{personCtrl.person.telephones}">
+
+                            <p:column headerText="Telephone Numbers">
+                                <p:cellEditor>
+                                    <f:facet name="output"><h:outputText value="#{telephone.telephoneNumber}" /></f:facet>
+                                    <f:facet name="input"><p:inputText id="telephoneInput" value="#{telephone.telephoneNumber}" required="true"/></f:facet>
+                                </p:cellEditor>
+                            </p:column>
+                            <p:column headerText="Operations">
+                                <p:rowEditor style="display: inline-block;" />
+                                <p:commandLink id="deleteTelephoneBtn" value="Delete" process="personForm:telephoneForm" update="personForm:telephoneForm" action="#{personCtrl.removeTelephone(telephone)}" />
+                            </p:column>
+                        </p:dataTable>
+                        <p:inputText id="telephone" value="#{personCtrl.telephone.telephoneNumber}" />
+                        <p:commandLink action="#{personCtrl.addTelephone}" value="Add telephone" process="telephoneForm" update="telephoneForm" />
+                    </h:panelGroup>
                 </h:panelGrid>
 
-                <p:commandButton value="Create" action="#{personCtrl.createPerson}" update="personTable,personFieldset" rendered="#{!personCtrl.editing}" />
-                <p:commandButton value="Update" action="#{personCtrl.updatePerson}" update="personTable,personFieldset" rendered="#{personCtrl.editing}" />
+                <p:commandButton id="createBtn" value="Create" action="#{personCtrl.createPerson}" update="personTable,personFieldset" rendered="#{!personCtrl.editing}" />
+                <p:commandButton id="updateBtn" value="Update" action="#{personCtrl.updatePerson}" update="personTable,personFieldset" rendered="#{personCtrl.editing}" />
 
             </h:form>
         </p:fieldset>
@@ -47,6 +67,12 @@
                 <p:column headerText="Age">
                     <h:outputText value="#{person.age}" />
                 </p:column>
+                <p:column headerText="Telephone Numbers">
+                    <p:dataList value="#{person.telephones}" var="telephone" type="unordered">
+                        #{telephone.telephoneNumber}
+                    </p:dataList>
+                </p:column>
+
                 <p:column headerText="Operations">
 
                     <p:commandLink action="#{personCtrl.deletePerson(person)}" value="Delete" update="personTable,personFieldset">

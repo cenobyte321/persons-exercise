@@ -1,9 +1,8 @@
 package com.koneksys.interview.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Person {
@@ -14,6 +13,9 @@ public class Person {
     private String name;
     private String country;
     private Integer age;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "person", orphanRemoval = true)
+    private List<Telephone> telephones = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -45,5 +47,13 @@ public class Person {
 
     public void setAge(Integer age) {
         this.age = age;
+    }
+
+    public List<Telephone> getTelephones() {
+        return telephones;
+    }
+
+    public void setTelephones(List<Telephone> telephones) {
+        this.telephones = telephones;
     }
 }

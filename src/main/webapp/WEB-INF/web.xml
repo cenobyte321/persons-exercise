@@ -10,4 +10,10 @@
         <param-name>primefaces.THEME</param-name>
         <param-value>afterdark</param-value>
     </context-param>
+
+    <data-source>
+        <name>java:app/datasource</name>
+        <class-name>org.h2.jdbcx.JdbcDataSource</class-name>
+        <url>jdbc:h2:mem:test</url>
+    </data-source>
 </web-app>
