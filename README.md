@@ -1,4 +1,4 @@
-#Requirements
+# Requirements
 - Java JDK 8
 - Payara Micro 184 Jar (Download: https://www.payara.fish/software/downloads/)
 
