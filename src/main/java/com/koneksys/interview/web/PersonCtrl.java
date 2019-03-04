@@ -20,6 +20,10 @@ public class PersonCtrl implements Serializable {
     private transient PersonService personService;
 
     private List<Person> personList = new ArrayList<>();
+
+    private List<Person> nonRelatedPersonsList = new ArrayList<>();
+    private List<Person> relatedPersonList = new ArrayList<>();
+
     private Person person = new Person();
     private Telephone telephone = new Telephone();
     private boolean editing = false;
@@ -37,6 +41,7 @@ public class PersonCtrl implements Serializable {
     public void editPerson(Person person){
         setEditing(true);
         setPerson(person);
+        setNonRelatedPersonsList(personService.getNonRelatedPersons(person));
     }
 
     public void updatePerson(){
@@ -63,10 +68,11 @@ public class PersonCtrl implements Serializable {
     }
 
 
-    private void refreshPersonList(){
+    public void refreshPersonList(){
         setPersonList(personService.getPersons());
         setPerson(new Person());
         setTelephone(new Telephone());
+        setNonRelatedPersonsList(personService.getPersons());
     }
 
     public List<Person> getPersonList() {
@@ -100,4 +106,13 @@ public class PersonCtrl implements Serializable {
     public void setTelephone(Telephone telephone) {
         this.telephone = telephone;
     }
+
+    public List<Person> getNonRelatedPersonsList() {
+        return nonRelatedPersonsList;
+    }
+
+    public void setNonRelatedPersonsList(List<Person> nonRelatedPersonsList) {
+        this.nonRelatedPersonsList = nonRelatedPersonsList;
+    }
+
 }

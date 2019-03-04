@@ -49,6 +49,10 @@
                         <p:commandLink action="#{personCtrl.addTelephone}" value="Add telephone" process="telephoneForm" update="telephoneForm" />
                     </h:panelGroup>
                 </h:panelGrid>
+                <p:outputLabel for="knows" value="Knows: " />
+                <p:selectManyMenu id="knows" value="#{personCtrl.person.knows}" filter="true" filterMatchMode="contains" showCheckbox="true" converter="personConverter" styleClass="personDataPanel">
+                    <f:selectItems value="#{personCtrl.nonRelatedPersonsList}" var="nonRelatedPerson" itemLabel="#{nonRelatedPerson.name}" itemValue="#{nonRelatedPerson}" />
+                </p:selectManyMenu>
 
                 <p:commandButton id="createBtn" value="Create" action="#{personCtrl.createPerson}" update="personTable,personFieldset" rendered="#{!personCtrl.editing}" />
                 <p:commandButton id="updateBtn" value="Update" action="#{personCtrl.updatePerson}" update="personTable,personFieldset" rendered="#{personCtrl.editing}" />
@@ -70,6 +74,11 @@
                 <p:column headerText="Telephone Numbers">
                     <p:dataList value="#{person.telephones}" var="telephone" type="unordered">
                         #{telephone.telephoneNumber}
+                    </p:dataList>
+                </p:column>
+                <p:column headerText="Persons Known">
+                    <p:dataList value="#{person.knows}" var="personKnown" type="unordered">
+                        #{personKnown.name}
                     </p:dataList>
                 </p:column>
 

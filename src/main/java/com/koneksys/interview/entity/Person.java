@@ -3,6 +3,7 @@ package com.koneksys.interview.entity;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Person {
@@ -16,6 +17,8 @@ public class Person {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "person", orphanRemoval = true)
     private List<Telephone> telephones = new ArrayList<>();
+    @ManyToMany
+    private List<Person> knows = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -55,5 +58,27 @@ public class Person {
 
     public void setTelephones(List<Telephone> telephones) {
         this.telephones = telephones;
+    }
+
+    public List<Person> getKnows() {
+        return knows;
+    }
+
+    public void setKnows(List<Person> knows) {
+        this.knows = knows;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Person person = (Person) o;
+        return getId().equals(person.getId()) &&
+                getName().equals(person.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName());
     }
 }

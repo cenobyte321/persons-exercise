@@ -12,7 +12,7 @@ h1{
 }
 
 .personDataPanel{
-    width: 300px;
+    width: 300px !important;
 }
 
 .telephonesPanel{
