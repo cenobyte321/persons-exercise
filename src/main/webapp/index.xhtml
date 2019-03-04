@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Person Admin</title>
+        <h:outputStylesheet library="css" name="styles.css"/>
+    </h:head>
+
+    <h:body>
+        <h1>Persons Admin</h1>
+        <p:fieldset id="personFieldset" legend="#{personCtrl.editing ? 'Update person' : 'Create person'}">
+            <h:form id="personForm">
+                <p:messages id="messages" closable="true">
+                    <p:autoUpdate />
+                </p:messages>
+                <h:panelGrid columns="2">
+                    <p:outputLabel for="name" value="Name: " />
+                    <p:inputText id="name" value="#{personCtrl.person.name}" required="true" />
+
+                    <p:outputLabel for="country" value="Country: " />
+                    <p:inputText id="country" value="#{personCtrl.person.country}" required="true" />
+
+                    <p:outputLabel for="age" value="Age: "   />
+                    <p:inputNumber id="age" value="#{personCtrl.person.age}" required="true" decimalPlaces="0" />
+                </h:panelGrid>
+
+                <p:commandButton value="Create" action="#{personCtrl.createPerson}" update="personTable,personFieldset" rendered="#{!personCtrl.editing}" />
+                <p:commandButton value="Update" action="#{personCtrl.updatePerson}" update="personTable,personFieldset" rendered="#{personCtrl.editing}" />
+
+            </h:form>
+        </p:fieldset>
+
+        <h:form id="personTable">
+            <p:dataTable var="person" rows="10" paginator="true" value="#{personCtrl.personList}" styleClass="dataTable">
+                <p:column headerText="Name">
+                    <h:outputText value="#{person.name}" />
+                </p:column>
+                <p:column headerText="Country">
+                    <h:outputText value="#{person.country}" />
+                </p:column>
+                <p:column headerText="Age">
+                    <h:outputText value="#{person.age}" />
+                </p:column>
+                <p:column headerText="Operations">
+
+                    <p:commandLink action="#{personCtrl.deletePerson(person)}" value="Delete" update="personTable,personFieldset">
+                        <p:confirm header="Confirmation" message="Are you sure?" icon="pi pi-exclamation-triangle" />
+                    </p:commandLink>
+                    &nbsp;
+                    <p:commandLink action="#{personCtrl.editPerson(person)}" value="Update" update="personFieldset" />
+
+                </p:column>
+            </p:dataTable>
+
+        </h:form>
+
+
+        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+        </p:confirmDialog>
+    </h:body>
+
+</html>

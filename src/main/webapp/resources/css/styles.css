@@ -1,0 +1,12 @@
+body{
+    background-color: black;
+}
+
+h1{
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    color: white
+}
+
+.dataTable{
+    margin-bottom: 20px;
+}
