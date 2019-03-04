@@ -20,7 +20,7 @@
                     <p:autoUpdate />
                 </p:messages>
                 <h:panelGrid columns="2">
-                    <h:panelGrid id="personData" columns="2" style="width: 300px;">
+                    <h:panelGrid id="personData" columns="2" styleClass="personDataPanel">
                         <p:outputLabel for="name" value="Name: " />
                         <p:inputText id="name" value="#{personCtrl.person.name}" required="true" />
 
@@ -31,7 +31,7 @@
                         <p:inputNumber id="age" value="#{personCtrl.person.age}" required="true" decimalPlaces="0" />
 
                     </h:panelGrid>
-                    <h:panelGroup id="telephoneForm" style="display: block; width: 50%" styleClass="dataTable">
+                    <h:panelGroup id="telephoneForm" styleClass="telephonesPanel">
                         <p:dataTable editable="true" var="telephone" value="#{personCtrl.person.telephones}">
 
                             <p:column headerText="Telephone Numbers">
@@ -41,7 +41,7 @@
                                 </p:cellEditor>
                             </p:column>
                             <p:column headerText="Operations">
-                                <p:rowEditor style="display: inline-block;" />
+                                <p:rowEditor styleClass="rowEditor" />
                                 <p:commandLink id="deleteTelephoneBtn" value="Delete" process="personForm:telephoneForm" update="personForm:telephoneForm" action="#{personCtrl.removeTelephone(telephone)}" />
                             </p:column>
                         </p:dataTable>

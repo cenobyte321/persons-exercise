@@ -10,3 +10,17 @@ h1{
 .dataTable{
     margin-bottom: 20px;
 }
+
+.personDataPanel{
+    width: 300px;
+}
+
+.telephonesPanel{
+    display: block;
+    width: 50%;
+    margin-bottom: 20px;
+}
+
+.rowEditor{
+    display: inline-block;
+}
