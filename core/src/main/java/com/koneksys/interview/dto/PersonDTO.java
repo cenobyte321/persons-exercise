@@ -69,11 +69,11 @@ public class PersonDTO implements Serializable{
         if (o == null || getClass() != o.getClass()) return false;
         PersonDTO personDTO = (PersonDTO) o;
         return Objects.equals(id, personDTO.id) &&
-                Objects.equals(name, personDTO.name);
+                Objects.equals(country, personDTO.country);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id, country);
     }
 }

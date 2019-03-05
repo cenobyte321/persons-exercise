@@ -25,7 +25,7 @@ public class PersonConverter implements Converter<PersonDTO> {
             return null;
         }
 
-        return personService.findPerson(Long.parseLong(s));
+        return personService.findPerson(s);
     }
 
     @Override
@@ -36,6 +36,6 @@ public class PersonConverter implements Converter<PersonDTO> {
         if(person.getId() == null){
             return "";
         }
-        return person.getId().toString();
+        return person.getCountry()+":"+person.getId().toString();
     }
 }

@@ -25,7 +25,10 @@
                         <p:inputText id="name" value="#{personCtrl.person.name}" required="true" />
 
                         <p:outputLabel for="country" value="Country: " />
-                        <p:inputText id="country" value="#{personCtrl.person.country}" required="true" />
+                        <p:selectOneButton id="country" value="#{personCtrl.person.country}" required="true">
+                            <f:selectItem itemLabel="US" itemValue="US" />
+                            <f:selectItem itemLabel="UK" itemValue="UK" />
+                        </p:selectOneButton>
 
                         <p:outputLabel for="age" value="Age: "   />
                         <p:inputNumber id="age" value="#{personCtrl.person.age}" required="true" decimalPlaces="0" />
@@ -78,7 +81,7 @@
                 </p:column>
                 <p:column headerText="Persons Known">
                     <p:dataList value="#{person.knows}" var="personKnown" type="unordered">
-                        #{personKnown.name}
+                        #{personCtrl.findPerson(personKnown.country.concat(":".concat(personKnown.id))).name}
                     </p:dataList>
                 </p:column>
 

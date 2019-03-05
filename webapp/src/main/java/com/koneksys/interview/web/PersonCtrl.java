@@ -70,6 +70,9 @@ public class PersonCtrl implements Serializable {
         setTelephone(new TelephoneDTO());
     }
 
+    public PersonDTO findPerson(String personQuery){
+        return personService.findPerson(personQuery);
+    }
 
     public void refreshPersonList(){
         setPersonList(personService.getPersons());

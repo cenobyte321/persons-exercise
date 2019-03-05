@@ -3,10 +3,19 @@ package com.koneksys.interview.service;
 import com.koneksys.interview.dto.PersonDTO;
 import com.koneksys.interview.dto.TelephoneDTO;
 import com.koneksys.interview.entity.Person;
+import com.koneksys.interview.entity.Relationship;
 import com.koneksys.interview.entity.Telephone;
+import com.koneksys.interview.message.PersonDeleteMessage;
+import com.koneksys.interview.message.RelationshipMessage;
+import fish.payara.micro.cdi.Inbound;
+import fish.payara.micro.cdi.Outbound;
 
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.transaction.Transactional;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,10 +26,48 @@ public class PersonServiceDatabase{
     @PersistenceContext(unitName = "personPU")
     EntityManager entityManager;
 
+    @Inject
+    @Outbound(eventName = "addRelationshipEvent")
+    Event<RelationshipMessage> addRelationshipEvent;
+
+    @Inject
+    @Outbound(eventName = "deletePersonEvent")
+    Event<PersonDeleteMessage> deletePersonEvent;
+
+    @Inject
+    @Outbound(eventName = "updatePersonEvent")
+    Event<PersonDeleteMessage> updatePersonEvent;
+
+    public void observeDeletePersonEvent(@Observes @Inbound(eventName = "deletePersonEvent") PersonDeleteMessage personDeleteMessage){
+        Query deleteQuery = entityManager.createQuery("DELETE FROM Relationship r WHERE (r.personAId = :personId AND r.personAServer = :personServer) OR (r.personBId = :personId AND r.personBServer = :personServer)");
+        executeDelete(deleteQuery, "personId", personDeleteMessage.getPersonIdToDelete(), "personServer", personDeleteMessage.getPersonCountryToDelete());
+    }
+
+
+
+    public void observeUpdatePersonEvent(@Observes @Inbound(eventName = "updatePersonEvent") PersonDeleteMessage personDeleteMessage){
+        System.out.println("Removing for update: "+ personDeleteMessage.getPersonIdToDelete()+ " " + personDeleteMessage.getPersonCountryToDelete());
+        Query deleteQuery = entityManager.createQuery("DELETE FROM Relationship r WHERE r.personAId = :personId AND r.personAServer = :personServer");
+        executeDelete(deleteQuery, "personId", personDeleteMessage.getPersonIdToDelete(), "personServer", personDeleteMessage.getPersonCountryToDelete());
+    }
+
+    public void observeAddRelationshipEvent(@Observes @Inbound(eventName = "addRelationshipEvent") RelationshipMessage relationship){
+        System.out.println("Adding relationship " + relationship.getPersonAId() + " " + relationship.getPersonAServer() + " ->" + relationship.getPersonBId() + " " + relationship.getPersonBServer());
+        Relationship relationshipToSave = new Relationship();
+        relationshipToSave.setPersonAId(relationship.getPersonAId());
+        relationshipToSave.setPersonAServer(relationship.getPersonAServer());
+        relationshipToSave.setPersonBId(relationship.getPersonBId());
+        relationshipToSave.setPersonBServer(relationship.getPersonBServer());
+        entityManager.persist(relationshipToSave);
+    }
+
     public PersonDTO createPerson(PersonDTO person){
         Person personEntity = new Person();
         personEntity = convertToPersonEntity(person, personEntity);
         entityManager.persist(personEntity);
+
+        createRelationships(person, personEntity);
+
         person.setId(personEntity.getId());
         return person;
     }
@@ -28,18 +75,32 @@ public class PersonServiceDatabase{
     public PersonDTO updatePerson(PersonDTO person){
         Person personEntityToUpdate = entityManager.find(Person.class, person.getId());
         personEntityToUpdate.getTelephones().clear();
-        personEntityToUpdate.getKnows().clear();
+
         personEntityToUpdate = convertToPersonEntity(person, personEntityToUpdate);
         entityManager.merge(personEntityToUpdate);
+        PersonDeleteMessage message = new PersonDeleteMessage(personEntityToUpdate.getId(),personEntityToUpdate.getCountry());
+        Query deleteQuery = entityManager.createQuery("DELETE FROM Relationship r WHERE r.personAId = :personAId AND r.personAServer = :personAServer");
+        executeDelete(deleteQuery, "personAId", personEntityToUpdate.getId(), "personAServer", personEntityToUpdate.getCountry());
+        updatePersonEvent.fire(message);
+        createRelationships(person, personEntityToUpdate);
+
         return person;
     }
 
-    public void deletePerson(Long id){
 
+
+    public void deletePerson(Long id){
         Person personToRemove = entityManager.merge(entityManager.find(Person.class, id));
+        PersonDeleteMessage message = new PersonDeleteMessage(personToRemove.getId(), personToRemove.getCountry());
+        Query deleteQuery = entityManager.createQuery("DELETE FROM Relationship r WHERE (r.personAId = :personId AND r.personAServer = :personServer) OR (r.personBId = :personId AND r.personBServer = :personServer)");
+        deleteQuery.setParameter("personId", personToRemove.getId());
+        deleteQuery.setParameter("personServer", personToRemove.getCountry());
+        deleteQuery.executeUpdate();
+
         entityManager.remove(personToRemove);
         entityManager.flush();
         entityManager.clear();
+        deletePersonEvent.fire(message);
 
     }
 
@@ -72,13 +133,17 @@ public class PersonServiceDatabase{
             personDTO.getTelephones().add(telephoneDTO);
         });
 
-        person.getKnows().forEach(personKnown -> {
+        Query selectQuery = entityManager.createQuery("SELECT r FROM Relationship r WHERE r.personAId = :personId AND r.personAServer = :personServer", Relationship.class);
+        selectQuery.setParameter("personId", person.getId());
+        selectQuery.setParameter("personServer", person.getCountry());
+        List<Relationship> relationshipList = selectQuery.getResultList();
+        relationshipList.forEach(relationship -> {
             PersonDTO personKnownDTO = new PersonDTO();
-            personKnownDTO.setId(personKnown.getId());
-            personKnownDTO.setName(personKnown.getName());
-            personKnownDTO.setAge(personKnown.getAge());
+            personKnownDTO.setId(relationship.getPersonBId());
+            personKnownDTO.setCountry(relationship.getPersonBServer());
             personDTO.getKnows().add(personKnownDTO);
         });
+
         return personDTO;
     }
 
@@ -99,10 +164,35 @@ public class PersonServiceDatabase{
                 personEntity.getTelephones().add(telephone);
             }
         });
-        personDTO.getKnows().forEach(personKnown ->{
-            Person knownPerson = entityManager.find(Person.class, personKnown.getId());
-            personEntity.getKnows().add(knownPerson);
-        });
+
         return personEntity;
+    }
+
+    private void createRelationships(PersonDTO person, Person personEntityToUpdate) {
+        Person finalPersonEntityToUpdate = personEntityToUpdate;
+        person.getKnows().forEach(personDTO -> {
+            Relationship relationship = new Relationship();
+            relationship.setPersonAId(finalPersonEntityToUpdate.getId());
+            relationship.setPersonAServer(finalPersonEntityToUpdate.getCountry());
+            relationship.setPersonBId(personDTO.getId());
+            relationship.setPersonBServer(personDTO.getCountry());
+
+            RelationshipMessage message = new RelationshipMessage();
+            message.setPersonAId(finalPersonEntityToUpdate.getId());
+            message.setPersonAServer(finalPersonEntityToUpdate.getCountry());
+            message.setPersonBId(personDTO.getId());
+            message.setPersonBServer(personDTO.getCountry());
+            System.out.println("Firing create relationship event");
+            addRelationshipEvent.fire(message);
+            entityManager.persist(relationship);
+        });
+    }
+
+    private void executeDelete(Query deleteQuery, String personId, Long personIdToDelete, String personServer, String personCountryToDelete) {
+        deleteQuery.setParameter(personId, personIdToDelete);
+        deleteQuery.setParameter(personServer, personCountryToDelete);
+        deleteQuery.executeUpdate();
+        entityManager.flush();
+        entityManager.clear();
     }
 }

@@ -19,18 +19,6 @@ public class Person {
     private List<Telephone> telephones = new ArrayList<>();
 
 
-    @ManyToMany
-    private List<Person> knows = new ArrayList<>();
-
-    @ManyToMany(mappedBy = "knows")
-    private List<Person> knownBy = new ArrayList<>();
-
-    @PreRemove
-    private void removeKnowns(){
-        for(Person person : knownBy){
-            person.getKnows().remove(this);
-        }
-    }
 
     public Long getId() {
         return id;
@@ -70,22 +58,6 @@ public class Person {
 
     public void setTelephones(List<Telephone> telephones) {
         this.telephones = telephones;
-    }
-
-    public List<Person> getKnows() {
-        return knows;
-    }
-
-    public void setKnows(List<Person> knows) {
-        this.knows = knows;
-    }
-
-    public List<Person> getKnownBy() {
-        return knownBy;
-    }
-
-    public void setKnownBy(List<Person> knownBy) {
-        this.knownBy = knownBy;
     }
 
     @Override
