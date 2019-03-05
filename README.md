@@ -8,14 +8,23 @@ mvn clean package
 ``
 
 # Run
+
+Backend:
+
 ``
- java -jar /path/to/payara/micro.jar --deploy target/interview.war
+java -jar /path/to/payara/micro.jar --deploy service/target/service.war --port 8080
+``
+
+Web App:
+
+``
+java -jar /path/to/payara/micro.jar --deploy webapp/target/webapp.war --port 8081
 ``
 
 Go to the following URL inside a web browser:
 
 ``
-http://localhost:8080/interview/
+http://localhost:8080/webapp/
 ``
 
 # H2 Web Console
