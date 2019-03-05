@@ -9,7 +9,7 @@ mvn clean package
 
 # Run
 
-Backend:
+**Important**: The following must be run in order.
 
 UK Server: 
 
