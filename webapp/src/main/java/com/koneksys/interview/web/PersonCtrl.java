@@ -26,6 +26,7 @@ public class PersonCtrl implements Serializable {
 
     private PersonDTO person = new PersonDTO();
     private TelephoneDTO telephone = new TelephoneDTO();
+    private String originalCountry = "";
     private boolean editing = false;
 
     @PostConstruct
@@ -45,11 +46,21 @@ public class PersonCtrl implements Serializable {
         nonRelatedPersons.addAll(personList);
         nonRelatedPersons.remove(person);
         setNonRelatedPersonsList(nonRelatedPersons);
-        ;
+        originalCountry = person.getCountry();
     }
 
     public void updatePerson(){
-        personService.updatePerson(getPerson());
+        String newCountry = getPerson().getCountry();
+        if(originalCountry.equals(newCountry)){
+            personService.updatePerson(getPerson());
+        }
+        else{
+            getPerson().setCountry(originalCountry);
+            personService.deletePerson(getPerson());
+            getPerson().setCountry(newCountry);
+            personService.createPerson(getPerson());
+        }
+
         setEditing(false);
         refreshPersonList();
     }
@@ -81,6 +92,7 @@ public class PersonCtrl implements Serializable {
         setNonRelatedPersonsList(personService.getPersons());
 
         setEditing(false);
+        originalCountry = "";
     }
 
     public List<PersonDTO> getPersonList() {
